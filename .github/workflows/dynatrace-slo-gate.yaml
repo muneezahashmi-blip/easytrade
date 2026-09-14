@@ -29,9 +29,11 @@ jobs:
           DT_URL: ${{ secrets.DT_URL }}
           DT_TOKEN: ${{ secrets.DT_TOKEN }}
         run: |
+          FROM=$(date -u -d '15 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          TO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           curl -s -o /dev/null -w "Dynatrace SDLC event ingest responded: %{http_code}\n" \
             -X POST "$DT_URL/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token $DT_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
             -H "Accept: */*" \
-            -d "{\"event.type\": \"validation.triggered\", \"event.kind\": \"SDLC_EVENT\", \"unique_id\": \"easytrade-practice-${{ github.run_id }}\", \"deployment.name\": \"easytrade-practice-deploy\", \"environment.stage\": \"practice\", \"version\": \"${{ github.sha }}\"}"
+            -d "{\"event.type\": \"validation.triggered\", \"event.kind\": \"SDLC_EVENT\", \"unique_id\": \"easytrade-practice-${{ github.run_id }}\", \"timeframe.from\": \"$FROM\", \"timeframe.to\": \"$TO\", \"deployment.name\": \"easytrade-practice-deploy\", \"environment.stage\": \"practice\", \"version\": \"${{ github.sha }}\"}"
