@@ -1,0 +1,37 @@
+name: Dynatrace SLO Gate Practice
+
+on:
+  workflow_dispatch:
+    inputs:
+      inject_failure:
+        description: "Simulate a bad deployment (for testing the Guardian gate)?"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  practice-deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Simulate deployment
+        run: |
+          echo "Pretending to deploy easytrade... (this is a stand-in step, not a real deploy)"
+          if [ "${{ inputs.inject_failure }}" = "true" ]; then
+            echo "inject_failure=true -> simulating a degraded release"
+          fi
+          echo "Deployment finished at $(date -u +%FT%TZ)"
+
+      - name: Send deployment-finished event to Dynatrace
+        env:
+          DT_URL: ${{ secrets.DT_URL }}
+          DT_TOKEN: ${{ secrets.DT_TOKEN }}
+        run: |
+          curl -s -o /dev/null -w "Dynatrace SDLC event ingest responded: %{http_code}\n" \
+            -X POST "$DT_URL/platform/ingest/v1/events.sdlc" \
+            -H "Authorization: Api-Token $DT_TOKEN" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -H "Accept: */*" \
+            -d "{\"event.type\": \"deployment.finished\", \"unique_id\": \"easytrade-practice-${{ github.run_id }}\", \"deployment.name\": \"easytrade-practice-deploy\", \"environment.stage\": \"practice\", \"version\": \"${{ github.sha }}\"}"
