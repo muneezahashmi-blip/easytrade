@@ -31,7 +31,9 @@ jobs:
         run: |
           FROM=$(date -u -d '15 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
           TO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          curl -s -o /dev/null -w "Dynatrace SDLC event ingest responded: %{http_code}\n" \
+          echo "DT_URL is: $DT_URL"
+          echo "Full endpoint: $DT_URL/platform/ingest/v1/events.sdlc"
+          curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
             -X POST "$DT_URL/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token $DT_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
