@@ -24,7 +24,7 @@ jobs:
           fi
           echo "Deployment finished at $(date -u +%FT%TZ)"
 
-      - name: Send deployment-finished event to Dynatrace
+      - name: Trigger Dynatrace Guardian validation
         env:
           DT_URL: ${{ secrets.DT_URL }}
           DT_TOKEN: ${{ secrets.DT_TOKEN }}
@@ -34,4 +34,4 @@ jobs:
             -H "Authorization: Api-Token $DT_TOKEN" \
             -H "Content-Type: application/json; charset=utf-8" \
             -H "Accept: */*" \
-            -d "{\"event.type\": \"deployment.finished\", \"unique_id\": \"easytrade-practice-${{ github.run_id }}\", \"deployment.name\": \"easytrade-practice-deploy\", \"environment.stage\": \"practice\", \"version\": \"${{ github.sha }}\"}"
+            -d "{\"event.type\": \"validation.triggered\", \"event.kind\": \"SDLC_EVENT\", \"unique_id\": \"easytrade-practice-${{ github.run_id }}\", \"deployment.name\": \"easytrade-practice-deploy\", \"environment.stage\": \"practice\", \"version\": \"${{ github.sha }}\"}"
